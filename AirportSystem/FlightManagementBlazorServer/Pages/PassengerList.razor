@@ -1,0 +1,69 @@
+﻿@page "/PassengerList"
+
+@inject NavigationManager _navigationManager;
+@inject PassengerService _passengerService;
+
+<h3>Paseenger List</h3>
+<button type="button" @onclick="ShowAddPassengerPage">
+<span class="oi oi-plus"></span>
+Add Passenger
+</button>
+@if(Passengers == null)
+    {
+    <p>Loading...</p>
+}
+else
+{
+    <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Country</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach(var passenger in Passengers)
+            {
+                <tr>
+                    <td>@passenger.Name</td>
+                    <td>@passenger.Surname</td>
+                    <td>@passenger.Gender</td>
+                    <td>
+                    <button type="button" @onclick="() => OpenEditPassengerPage(passenger.Id)">
+                        <span class="oi oi-pencil"></span>
+                    </button>
+                    <button type="button" @onclick="() => DeletePassengerAsync(passenger.Id)">
+                        <span class="oi oi-delete"></span>
+                    </button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+}
+
+   
+@code {
+public List<Passenger> Passengers{ get; set; }
+protected override async Task OnInitializedAsync()
+{
+    Passengers = await GetPassengerAsync();
+}
+private void ShowAddPassengerPage()
+{
+    _navigationManager.NavigateTo("/AddPassenger");
+}
+private void OpenEditPassengerPage(int passengerId)
+{
+    _navigationManager.NavigateTo($"/EditPassenger/{passengerId}");
+}
+private async Task DeletePassengerAsync(int carrierId)
+{
+    await _passengerService.DeletePassengerAsync(carrierId);
+    Passengers = await GetPassengerAsync();
+}
+private async Task<List<Passenger>> GetPassengerAsync()
+{
+return await _passengerService.GetPassengersAsync();
+}
+}
